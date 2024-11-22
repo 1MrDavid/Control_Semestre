@@ -1,48 +1,61 @@
+import 'package:control_semestres/sceens/functions_helper.dart';
+import 'package:control_semestres/sceens/grades.dart';
 import 'package:flutter/material.dart';
 import 'basedato_helper.dart';
 
 class FormEdit extends StatefulWidget {
   final int id;
   final String materia;
-  final int nota;
   final String profesor;
+  final int corte1;
+  final int corte2;
+  final int corte3;
 
   const FormEdit({
     Key? key,
     required this.id,
     required this.materia,
-    required this.nota,
     required this.profesor,
+    required this.corte1,
+    required this.corte2,
+    required this.corte3,
   }) : super(key: key);
 
   @override
-  _FormEditState createState() => _FormEditState();
+  FormEditState createState() => FormEditState();
 }
 
-class _FormEditState extends State<FormEdit> {
+class FormEditState extends State<FormEdit> {
   final _formKey = GlobalKey<FormState>();
   final dbHelper = BasedatoHelper();
+  final functionsHelper = FunctionsHelper();
 
   // Controladores para los campos de texto
   late TextEditingController _materiaController;
-  late TextEditingController _notaController;
   late TextEditingController _profesorController;
+  late TextEditingController _corte1Controller;
+  late TextEditingController _corte2Controller;
+  late TextEditingController _corte3Controller;
 
   @override
   void initState() {
     super.initState();
     // Inicializa los controladores con los datos recibidos
     _materiaController = TextEditingController(text: widget.materia);
-    _notaController = TextEditingController(text: widget.nota.toString());
     _profesorController = TextEditingController(text: widget.profesor);
+    _corte1Controller = TextEditingController(text: widget.corte1.toString());
+    _corte2Controller = TextEditingController(text: widget.corte2.toString());
+    _corte3Controller = TextEditingController(text: widget.corte3.toString());
   }
 
   @override
   void dispose() {
     // Limpiar los controladores al salir
     _materiaController.dispose();
-    _notaController.dispose();
     _profesorController.dispose();
+    _corte1Controller.dispose();
+    _corte2Controller.dispose();
+    _corte3Controller.dispose();
     super.dispose();
   }
 
@@ -50,11 +63,11 @@ class _FormEditState extends State<FormEdit> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Nota'),
+        title: const Text('Editar Materia'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(
-            16.0), // Añadimos padding alrededor del formulario
+            16.0), // Añadir padding alrededor del formulario
         child: Form(
           key: _formKey,
           child: Column(
@@ -83,32 +96,6 @@ class _FormEditState extends State<FormEdit> {
               ),
               const SizedBox(height: 16),
 
-              // Bloque de Nota
-              const Text(
-                'Nota',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              TextFormField(
-                controller: _notaController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: 'Introduce la nota',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, introduce la nota';
-                  } else if (int.tryParse(value) == null) {
-                    return 'Introduce un número válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
               // Bloque de Profesor
               const Text(
                 'Profesor',
@@ -130,26 +117,102 @@ class _FormEditState extends State<FormEdit> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
+
+              // Bloque para Cortes
+              functionsHelper.buildThreeElementRow(
+                'Corte 1',
+                'Corte 2',
+                'Corte 3',
+                isHeader: true,
+              ),
+              Row(
+                children: [
+                  // Corte 1
+                  Expanded(
+                    child: TextFormField(
+                      controller: _corte1Controller,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Introduce un valor para Corte 1';
+                        } else if (int.tryParse(value) == null) {
+                          return 'Introduce un número válido';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8), // Espacio entre los campos
+
+                  // Corte 2
+                  Expanded(
+                    child: TextFormField(
+                      controller: _corte2Controller,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Introduce un valor para Corte 2';
+                        } else if (int.tryParse(value) == null) {
+                          return 'Introduce un número válido';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8), // Espacio entre los campos
+
+                  // Corte 3
+                  Expanded(
+                    child: TextFormField(
+                      controller: _corte3Controller,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Introduce un valor para Corte 3';
+                        } else if (int.tryParse(value) == null) {
+                          return 'Introduce un número válido';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 24),
 
-              // Colocamos los botones en una fila
+              // Botones
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Botón para guardar cambios
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final String newMateria = _materiaController.text;
-                        final int newNota = int.parse(_notaController.text);
                         final String newProfesor = _profesorController.text;
+                        final int newCorte1 = int.parse(_corte1Controller.text);
+                        final int newCorte2 = int.parse(_corte2Controller.text);
+                        final int newCorte3 = int.parse(_corte3Controller.text);
 
-                        dbHelper.updateData(
+                        // Actualizar los datos en la base de datos
+                        await dbHelper.updateData(
                           widget.id,
                           newMateria,
-                          newNota,
                           newProfesor,
-                        ); // Función para actualizar los datos
+                          newCorte1,
+                          newCorte2,
+                          newCorte3,
+                        );
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Datos actualizados')),
@@ -161,7 +224,7 @@ class _FormEditState extends State<FormEdit> {
                     child: const Text('Guardar'),
                   ),
 
-                  // Botón para borrar el registro
+                  // Botón para borrar
                   ElevatedButton(
                     onPressed: () async {
                       final confirm = await showDialog<bool>(
@@ -196,15 +259,20 @@ class _FormEditState extends State<FormEdit> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Dato eliminado')),
                           );
-
-                          Navigator.pop(context, true);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  GradesScreen(), // Asegúrate de que esta sea la pantalla correcta
+                            ),
+                          );
                         }
                       }
                     },
                     child: const Text('Borrar'),
                   ),
 
-                  // Botón para cancelar y volver atrás
+                  // Botón para cancelar
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
