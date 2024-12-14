@@ -10,19 +10,20 @@ class BasedatoHelper {
     final path = join(dataBasePath, 'mydatabase.db');
 
     return openDatabase(path, onCreate: (db, version) async {
-      // Crear la primera tabla 'notas_estudiante'
+      // Crear tablas
       await db.execute(
-        'CREATE TABLE notas_estudiante (id INTEGER PRIMARY KEY, ESTMAT TEXT, ESTNOT INT, ESTPRF TEXT)',
+        'CREATE TABLE notas_estudiante (id INTEGER PRIMARY KEY, ESTMAT TEXT, ESTNOT INT, ESTPRF TEXT, ESTCOD TEXT)',
       );
 
-      // Crear la segunda tabla 'estudiantes_info'
       await db.execute(
-        'CREATE TABLE materias (MATID INTEGER PRIMARY KEY, MATNOM TEXT, MATNT1 INT, MATNT2 INT, MATNT3 INT)',
+        'CREATE TABLE materias (MATID INTEGER PRIMARY KEY, MATNOM TEXT, MATSEM TEXT, MATSEC TEXT, MATNT1 INT, MATNT2 INT, MATNT3 INT)',
       );
 
       await db.execute(
           'CREATE TABLE tareas (TARTID INTEGER PRIMARY KEY, TARMID INTEGER, TARMNO TEXT, TARDES TEXT, TARFEC INTEGER, TARSTS TEXT)');
-    }, version: 3);
+      await db.execute(
+          'CREATE TABLE journal_secciones (SECCID INTEGER PRIMARY KEY, SECCOD TEXT, SECFES INT, SECFET INT)');
+    }, version: 4);
   }
 
   Future<List<Map<String, dynamic>>> mostrar() async {
