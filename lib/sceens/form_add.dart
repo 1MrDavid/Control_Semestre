@@ -3,7 +3,7 @@ import 'basedato_helper.dart';
 import 'functions_helper.dart';
 
 class Widget107 extends StatefulWidget {
-  Widget107({Key? key}) : super(key: key);
+  const Widget107({Key? key}) : super(key: key);
 
   @override
   Widget107State createState() => Widget107State();
@@ -13,19 +13,42 @@ class Widget107State extends State<Widget107> {
   final _formKey = GlobalKey<FormState>();
 
   // Controladores para los campos de texto
+  final TextEditingController _semestreController = TextEditingController();
   final TextEditingController _materiaController = TextEditingController();
   final TextEditingController _profesorController = TextEditingController();
   final TextEditingController _corte1Controller = TextEditingController();
   final TextEditingController _corte2Controller = TextEditingController();
   final TextEditingController _corte3Controller = TextEditingController();
 
-  // Variable para obtener los métodos de la base de datos
+  // Variables para el DropdownButton de las secciones
+  List<String> _secciones = [];
+  String? _seccionSeleccionada;
+
+  // Instancias de helpers
   final dbHelper = BasedatoHelper();
   final functionsHelper = FunctionsHelper();
 
-  // Limpiar los controladores cuando ya no se necesiten
+  @override
+  void initState() {
+    super.initState();
+    _cargarSecciones(); // Cargar las secciones al iniciar
+  }
+
+  Future<void> _cargarSecciones() async {
+    final secciones = await dbHelper.getSecciones();
+    setState(() {
+      _secciones = secciones;
+      if (_secciones.isNotEmpty) {
+        _seccionSeleccionada =
+            _secciones.first; // Seleccionar la primera por defecto
+      }
+    });
+  }
+
   @override
   void dispose() {
+    // Limpiar controladores al cerrar la pantalla
+    _semestreController.dispose();
     _materiaController.dispose();
     _profesorController.dispose();
     _corte1Controller.dispose();
@@ -41,30 +64,103 @@ class Widget107State extends State<Widget107> {
         title: const Text('Agregar Nota'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(
-            16.0), // Añadir padding alrededor del formulario
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Alinear los bloques a la izquierda
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Bloque 1: Materia
+// Bloque 1: Sección y Semestre
+              Row(
+                children: [
+                  // Dropdown para la sección
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Sección',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        DropdownButtonFormField<String>(
+                          value: _seccionSeleccionada,
+                          items: _secciones.map((seccion) {
+                            return DropdownMenuItem<String>(
+                              value: seccion,
+                              child: Text(seccion),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _seccionSeleccionada = value;
+                            });
+                          },
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 12), // Ajustar padding interno
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor, selecciona una sección';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16), // Espacio entre los widgets
+
+                  // TextField para el semestre
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Semestre',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextFormField(
+                          controller: _semestreController,
+                          decoration: const InputDecoration(
+                            hintText: 'Semestre',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Introduce el semestre';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Bloque 2: Materia
               const Text(
                 'Materia',
                 style: TextStyle(
-                  fontSize: 16, // Tamaño de la fuente del título
-                  fontWeight: FontWeight.bold, // Hacer el título en negritas
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               TextFormField(
-                controller:
-                    _materiaController, // Controlador para el campo de materia
+                controller: _materiaController,
                 decoration: const InputDecoration(
-                  hintText:
-                      'Introduce la materia', // Texto de ayuda en el campo
-                  border:
-                      OutlineInputBorder(), // Añadir borde alrededor del cuadro de texto
+                  hintText: 'Introduce la materia',
+                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -73,9 +169,9 @@ class Widget107State extends State<Widget107> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16), // Espacio entre los bloques
+              const SizedBox(height: 16),
 
-              // Bloque 2: Profesor
+              // Bloque 3: Profesor
               const Text(
                 'Profesor',
                 style: TextStyle(
@@ -84,8 +180,7 @@ class Widget107State extends State<Widget107> {
                 ),
               ),
               TextFormField(
-                controller:
-                    _profesorController, // Controlador para el campo de profesor
+                controller: _profesorController,
                 decoration: const InputDecoration(
                   hintText: 'Introduce el nombre del profesor',
                   border: OutlineInputBorder(),
@@ -97,8 +192,9 @@ class Widget107State extends State<Widget107> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24), // Espacio antes de las notas
+              const SizedBox(height: 24),
 
+              // Bloque 4: Cortes (Notas)
               functionsHelper.buildThreeElementRow(
                 'Corte 1',
                 'Corte 2',
@@ -109,27 +205,24 @@ class Widget107State extends State<Widget107> {
                 children: [
                   Expanded(
                     child: TextFormField(
-                      controller: _corte1Controller, // Controlador para Corte 1
-                      keyboardType: TextInputType.number, // Teclado numérico
+                      controller: _corte1Controller,
+                      keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         hintText: 'Corte 1',
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Introduce la nota del corte 1';
-                        } else if (int.tryParse(value) == null) {
-                          return 'Número válido';
+                          return 'Introduce la nota del Corte 1';
                         }
                         return null;
                       },
                     ),
                   ),
-                  const SizedBox(width: 8), // Espacio entre los campos
-
+                  const SizedBox(width: 8),
                   Expanded(
                     child: TextFormField(
-                      controller: _corte2Controller, // Controlador para Corte 2
+                      controller: _corte2Controller,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         hintText: 'Corte 2',
@@ -138,18 +231,15 @@ class Widget107State extends State<Widget107> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Introduce la nota del Corte 2';
-                        } else if (int.tryParse(value) == null) {
-                          return 'Número válido';
                         }
                         return null;
                       },
                     ),
                   ),
-                  const SizedBox(width: 8), // Espacio entre los campos
-
+                  const SizedBox(width: 8),
                   Expanded(
                     child: TextFormField(
-                      controller: _corte3Controller, // Controlador para Corte 3
+                      controller: _corte3Controller,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         hintText: 'Corte 3',
@@ -158,8 +248,6 @@ class Widget107State extends State<Widget107> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Introduce la nota del Corte 3';
-                        } else if (int.tryParse(value) == null) {
-                          return 'Número válido';
                         }
                         return null;
                       },
@@ -167,36 +255,57 @@ class Widget107State extends State<Widget107> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24), // Espacio antes de los botones
+              const SizedBox(height: 24),
 
-              // Colocamos los botones en una fila
+              // Botones
               Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween, // Espacio entre los botones
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         // Obtener los valores ingresados en los controladores
+                        final String seccion = _seccionSeleccionada ?? '';
+                        final String semestre = _semestreController.text;
                         final String materia = _materiaController.text;
                         final String profesor = _profesorController.text;
                         final int corte1 = int.parse(_corte1Controller.text);
                         final int corte2 = int.parse(_corte2Controller.text);
                         final int corte3 = int.parse(_corte3Controller.text);
 
-                        // Insertar en las dos tablas
-                        dbHelper.addData(materia, profesor, corte1, corte2,
-                            corte3); // Para la tabla notas_estudiante
+                        if (seccion.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Por favor, selecciona una sección'),
+                            ),
+                          );
+                          return;
+                        }
 
-                        // Mostrar un SnackBar con los datos ingresados
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                        // Llamar al método addData con todos los parámetros
+                        dbHelper
+                            .addData(materia, profesor, corte1, corte2, corte3,
+                                seccion, semestre)
+                            .then((_) {
+                          // Mostrar un SnackBar con los datos ingresados
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
                               content: Text(
-                                  'Datos guardados: $materia, $profesor, $corte1, $corte2, $corte3')),
-                        );
+                                  'Datos guardados: $materia, $profesor, $corte1, $corte2, $corte3, $seccion, $semestre'),
+                            ),
+                          );
 
-                        // Regresar a la pantalla anterior después de guardar
-                        Navigator.pop(context, true);
+                          // Regresar a la pantalla anterior después de guardar
+                          Navigator.pop(context, true);
+                        }).catchError((error) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Error al guardar los datos: ${error.toString()}'),
+                            ),
+                          );
+                        });
                       }
                     },
                     child: const Text('Agregar'),

@@ -19,10 +19,10 @@ class TaskEditScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _TaskEditScreenState createState() => _TaskEditScreenState();
+  TaskEditScreenState createState() => TaskEditScreenState();
 }
 
-class _TaskEditScreenState extends State<TaskEditScreen> {
+class TaskEditScreenState extends State<TaskEditScreen> {
   final _formKey = GlobalKey<FormState>();
   final dbHelper = BasedatoHelper();
 
@@ -42,11 +42,12 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
     _descripcionController = TextEditingController(text: widget.descripcion);
     _estatusSeleccionado = widget.estatus;
 
-    // Separar la fecha (DDMMAAAA)
+    // Separar la fecha (AAAAMMDD)
     String fechaStr = widget.fecha.toString().padLeft(8, '0');
-    _diaController = TextEditingController(text: fechaStr.substring(0, 2));
-    _mesController = TextEditingController(text: fechaStr.substring(2, 4));
-    _anioController = TextEditingController(text: fechaStr.substring(4, 8));
+    _anioController = TextEditingController(text: fechaStr.substring(0, 4));
+    _mesController = TextEditingController(text: fechaStr.substring(4, 6));
+    _diaController = TextEditingController(text: fechaStr.substring(6, 8));
+
     _cargarNombresMaterias();
     _materiaSeleccionada = widget.materia;
   }
@@ -68,10 +69,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   }
 
   int _obtenerFechaEntera() {
-    final dia = int.tryParse(_diaController.text) ?? 0;
-    final mes = int.tryParse(_mesController.text) ?? 0;
     final anio = int.tryParse(_anioController.text) ?? 0;
-    return (dia * 1000000) + (mes * 10000) + anio;
+    final mes = int.tryParse(_mesController.text) ?? 0;
+    final dia = int.tryParse(_diaController.text) ?? 0;
+    return (anio * 10000) + (mes * 100) + dia;
   }
 
   @override
@@ -140,22 +141,22 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
 
                 // Campos de fecha
                 const Text(
-                  'Fecha (DD/MM/AAAA)',
+                  'Fecha (AAAA/MM/DD)',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Row(
                   children: [
                     Expanded(
                       child: TextFormField(
-                        controller: _diaController,
+                        controller: _anioController,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                          hintText: 'Día',
+                          hintText: 'Año',
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Introduce el día';
+                            return 'Introduce el año';
                           } else if (int.tryParse(value) == null) {
                             return 'Número válido';
                           }
@@ -185,15 +186,15 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: TextFormField(
-                        controller: _anioController,
+                        controller: _diaController,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                          hintText: 'Año',
+                          hintText: 'Día',
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Introduce el año';
+                            return 'Introduce el día';
                           } else if (int.tryParse(value) == null) {
                             return 'Número válido';
                           }

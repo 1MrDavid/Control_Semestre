@@ -1,19 +1,29 @@
-import 'package:control_semestres/sceens/grades.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import './sceens/theme_provider.dart';
+import './sceens/grades.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
+      theme: ThemeData.light(), // Tema claro
+      darkTheme: ThemeData.dark(), // Tema oscuro
+      themeMode: themeProvider.themeMode, // Aplicar el modo de tema
       home: const GradesScreen(),
     );
   }

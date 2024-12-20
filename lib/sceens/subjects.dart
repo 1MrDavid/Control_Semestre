@@ -45,6 +45,64 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Bloque para Código de Sección y Semestre en una fila
+                  fnHelper.buildRow(
+                    'Sección:',
+                    'Semestre:',
+                    isHeader: true,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      // Tarjeta para Sección
+                      Expanded(
+                        child: Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  data['MATSEC'], // Código de la sección
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 16), // Espaciado entre las tarjetas
+
+                      // Tarjeta para Semestre
+                      Expanded(
+                        child: Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  data['MATSEM'], // Nombre del semestre
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16), // Espacio después de las tarjetas
+
                   // Bloque para Materia
                   const Text(
                     'Materia:',
@@ -165,6 +223,10 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                           'MATNT2'], // Datos actuales desde la base de datos
                       corte3: data[
                           'MATNT3'], // Datos actuales desde la base de datos
+                      seccion: data[
+                          'MATSEC'], // Datos actuales desde la base de datos
+                      semestre: data[
+                          'MATSEM'], // Datos actuales desde la base de datos
                     ),
                   ),
                 );

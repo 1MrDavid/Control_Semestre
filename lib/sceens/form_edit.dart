@@ -10,6 +10,8 @@ class FormEdit extends StatefulWidget {
   final int corte1;
   final int corte2;
   final int corte3;
+  final String seccion;
+  final String semestre;
 
   const FormEdit({
     Key? key,
@@ -19,6 +21,8 @@ class FormEdit extends StatefulWidget {
     required this.corte1,
     required this.corte2,
     required this.corte3,
+    required this.seccion,
+    required this.semestre,
   }) : super(key: key);
 
   @override
@@ -30,32 +34,45 @@ class FormEditState extends State<FormEdit> {
   final dbHelper = BasedatoHelper();
   final functionsHelper = FunctionsHelper();
 
-  // Controladores para los campos de texto
   late TextEditingController _materiaController;
   late TextEditingController _profesorController;
   late TextEditingController _corte1Controller;
   late TextEditingController _corte2Controller;
   late TextEditingController _corte3Controller;
+  late TextEditingController _semestreController;
+
+  String? _seccionSeleccionada;
+  List<String> _secciones = [];
 
   @override
   void initState() {
     super.initState();
-    // Inicializa los controladores con los datos recibidos
     _materiaController = TextEditingController(text: widget.materia);
     _profesorController = TextEditingController(text: widget.profesor);
     _corte1Controller = TextEditingController(text: widget.corte1.toString());
     _corte2Controller = TextEditingController(text: widget.corte2.toString());
     _corte3Controller = TextEditingController(text: widget.corte3.toString());
+    _semestreController = TextEditingController(text: widget.semestre);
+    _seccionSeleccionada = widget.seccion;
+    _cargarDatosSecciones();
+  }
+
+  Future<void> _cargarDatosSecciones() async {
+    final secciones = await dbHelper.getSecciones();
+
+    setState(() {
+      _secciones = secciones;
+    });
   }
 
   @override
   void dispose() {
-    // Limpiar los controladores al salir
     _materiaController.dispose();
     _profesorController.dispose();
     _corte1Controller.dispose();
     _corte2Controller.dispose();
     _corte3Controller.dispose();
+    _semestreController.dispose();
     super.dispose();
   }
 
@@ -66,225 +83,233 @@ class FormEditState extends State<FormEdit> {
         title: const Text('Editar Materia'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(
-            16.0), // Añadir padding alrededor del formulario
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Bloque de Materia
-              const Text(
-                'Materia',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              TextFormField(
-                controller: _materiaController,
-                decoration: const InputDecoration(
-                  hintText: 'Introduce la materia',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, introduce la materia';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Bloque de Profesor
-              const Text(
-                'Profesor',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              TextFormField(
-                controller: _profesorController,
-                decoration: const InputDecoration(
-                  hintText: 'Introduce el nombre del profesor',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, introduce el nombre del profesor';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Bloque para Cortes
-              functionsHelper.buildThreeElementRow(
-                'Corte 1',
-                'Corte 2',
-                'Corte 3',
-                isHeader: true,
-              ),
-              Row(
-                children: [
-                  // Corte 1
-                  Expanded(
-                    child: TextFormField(
-                      controller: _corte1Controller,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Introduce un valor para Corte 1';
-                        } else if (int.tryParse(value) == null) {
-                          return 'Introduce un número válido';
-                        }
-                        return null;
-                      },
-                    ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Sección
+                DropdownButtonFormField<String>(
+                  value: _seccionSeleccionada,
+                  items: _secciones.map((seccion) {
+                    return DropdownMenuItem<String>(
+                      value: seccion,
+                      child: Text(seccion),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _seccionSeleccionada = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Sección',
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(width: 8), // Espacio entre los campos
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Selecciona una sección';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
 
-                  // Corte 2
-                  Expanded(
-                    child: TextFormField(
-                      controller: _corte2Controller,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Introduce un valor para Corte 2';
-                        } else if (int.tryParse(value) == null) {
-                          return 'Introduce un número válido';
-                        }
-                        return null;
-                      },
-                    ),
+                // Semestre (Texto)
+                TextFormField(
+                  controller: _semestreController,
+                  decoration: const InputDecoration(
+                    labelText: 'Semestre',
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(width: 8), // Espacio entre los campos
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Introduce el semestre';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
 
-                  // Corte 3
-                  Expanded(
-                    child: TextFormField(
-                      controller: _corte3Controller,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Introduce un valor para Corte 3';
-                        } else if (int.tryParse(value) == null) {
-                          return 'Introduce un número válido';
-                        }
-                        return null;
-                      },
-                    ),
+                // Materia
+                TextFormField(
+                  controller: _materiaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Materia',
+                    border: OutlineInputBorder(),
                   ),
-                ],
-              ),
-              const SizedBox(height: 24),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Introduce el nombre de la materia';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
 
-              // Botones
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Botón para guardar cambios
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        final String newMateria = _materiaController.text;
-                        final String newProfesor = _profesorController.text;
-                        final int newCorte1 = int.parse(_corte1Controller.text);
-                        final int newCorte2 = int.parse(_corte2Controller.text);
-                        final int newCorte3 = int.parse(_corte3Controller.text);
-
-                        // Actualizar los datos en la base de datos
-                        await dbHelper.updateData(
-                          widget.id,
-                          newMateria,
-                          newProfesor,
-                          newCorte1,
-                          newCorte2,
-                          newCorte3,
-                        );
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Datos actualizados')),
-                        );
-
-                        Navigator.pop(context, true);
-                      }
-                    },
-                    child: const Text('Guardar'),
+                // Profesor
+                TextFormField(
+                  controller: _profesorController,
+                  decoration: const InputDecoration(
+                    labelText: 'Profesor',
+                    border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Introduce el nombre del profesor';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
 
-                  // Botón para borrar
-                  ElevatedButton(
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('Confirmar eliminación'),
-                            content: const Text(
-                                '¿Estás seguro de que deseas eliminar este registro?'),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(false);
-                                },
-                                child: const Text('Cancelar'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(true);
-                                },
-                                child: const Text('Eliminar'),
-                              ),
-                            ],
-                          );
+                // Cortes
+                functionsHelper.buildThreeElementRow(
+                    'Corte 1', 'Corte 2', 'Corte 3',
+                    isHeader: true),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _corte1Controller,
+                        keyboardType: TextInputType.number,
+                        decoration:
+                            const InputDecoration(border: OutlineInputBorder()),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Introduce Corte 1';
+                          }
+                          return null;
                         },
-                      );
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _corte2Controller,
+                        keyboardType: TextInputType.number,
+                        decoration:
+                            const InputDecoration(border: OutlineInputBorder()),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Introduce Corte 2';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _corte3Controller,
+                        keyboardType: TextInputType.number,
+                        decoration:
+                            const InputDecoration(border: OutlineInputBorder()),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Introduce Corte 3';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
 
-                      if (confirm == true && mounted) {
-                        await dbHelper.deleteData(widget.id);
-
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Dato eliminado')),
-                          );
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  GradesScreen(), // Asegúrate de que esta sea la pantalla correcta
-                            ),
-                          );
+                // Botones
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await _guardarCambios();
                         }
-                      }
-                    },
-                    child: const Text('Borrar'),
-                  ),
+                      },
+                      child: const Text('Guardar'),
+                    ),
+                    // Botón para borrar
+                    ElevatedButton(
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Confirmar eliminación'),
+                              content: const Text(
+                                  '¿Estás seguro de que deseas eliminar este registro?'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(false);
+                                  },
+                                  child: const Text('Cancelar'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(true);
+                                  },
+                                  child: const Text('Eliminar'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
 
-                  // Botón para cancelar
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Cancelar'),
-                  ),
-                ],
-              ),
-            ],
+                        if (confirm == true && mounted) {
+                          await dbHelper.deleteData(widget.id);
+
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Dato eliminado')),
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const GradesScreen(), // Asegúrate de que esta sea la pantalla correcta
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      child: const Text('Borrar'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Cancelar'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _guardarCambios() async {
+    await dbHelper.updateData(
+      widget.id,
+      _materiaController.text,
+      _profesorController.text,
+      int.parse(_corte1Controller.text),
+      int.parse(_corte2Controller.text),
+      int.parse(_corte3Controller.text),
+      _seccionSeleccionada!,
+      _semestreController.text, // Aquí se usa el texto ingresado
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Datos actualizados')),
+    );
+
+    Navigator.pop(context, true);
   }
 }

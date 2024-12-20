@@ -12,17 +12,18 @@ class BasedatoHelper {
     return openDatabase(path, onCreate: (db, version) async {
       // Crear tablas
       await db.execute(
-        'CREATE TABLE notas_estudiante (id INTEGER PRIMARY KEY, ESTMAT TEXT, ESTNOT INT, ESTPRF TEXT, ESTCOD TEXT)',
+        'CREATE TABLE IF NOT EXISTS notas_estudiante (id INTEGER PRIMARY KEY, ESTMAT TEXT, ESTNOT INT, ESTPRF TEXT, ESTCOD TEXT)',
       );
 
       await db.execute(
-        'CREATE TABLE materias (MATID INTEGER PRIMARY KEY, MATNOM TEXT, MATSEM TEXT, MATSEC TEXT, MATNT1 INT, MATNT2 INT, MATNT3 INT)',
+        'CREATE TABLE IF NOT EXISTS materias (MATID INTEGER PRIMARY KEY, MATNOM TEXT, MATSEM TEXT, MATSEC TEXT, MATNT1 INT, MATNT2 INT, MATNT3 INT)',
       );
 
       await db.execute(
-          'CREATE TABLE tareas (TARTID INTEGER PRIMARY KEY, TARMID INTEGER, TARMNO TEXT, TARDES TEXT, TARFEC INTEGER, TARSTS TEXT)');
+          'CREATE TABLE IF NOT EXISTS tareas (TARTID INTEGER PRIMARY KEY, TARMID INTEGER, TARMNO TEXT, TARDES TEXT, TARFEC INTEGER, TARSTS TEXT)');
+
       await db.execute(
-          'CREATE TABLE journal_secciones (SECCID INTEGER PRIMARY KEY, SECCOD TEXT, SECFES INT, SECFET INT)');
+          'CREATE TABLE IF NOT EXISTS journal_secciones (SECCID INTEGER PRIMARY KEY, SECCOD TEXT, SECFES INT, SECFET INT, SECSTS TEXT)');
     }, version: 4);
   }
 
@@ -54,7 +55,9 @@ class BasedatoHelper {
         notas_estudiante.ESTPRF,
         materias.MATNT1,
         materias.MATNT2,
-        materias.MATNT3
+        materias.MATNT3,
+        materias.MATSEC,
+        materias.MATSEM
       FROM notas_estudiante
       INNER JOIN materias ON notas_estudiante.ESTMAT = materias.MATNOM
       where notas_estudiante.id = ?
@@ -63,7 +66,49 @@ class BasedatoHelper {
     return data;
   }
 
-  Future<void> addData(materia, profesor, corte1, corte2, corte3) async {
+  Future<List<Map<String, dynamic>>> mostrarSeccionActual() async {
+    final database = await _openDatabase();
+
+    final data = await database.rawQuery('''
+      SELECT 
+        notas_estudiante.id,
+        notas_estudiante.ESTMAT,
+        notas_estudiante.ESTNOT,
+        notas_estudiante.ESTPRF,
+        materias.MATNT1,
+        materias.MATNT2,
+        materias.MATNT3
+      FROM notas_estudiante
+      INNER JOIN materias ON notas_estudiante.ESTMAT = materias.MATNOM
+      INNER JOIN journal_secciones ON notas_estudiante.ESTCOD = journal_secciones.SECCOD
+      WHERE SECSTS = 'S'
+      ''');
+    await database.close();
+    return data;
+  }
+
+  Future<List<Map<String, dynamic>>> mostrarPorSeccion(id) async {
+    final database = await _openDatabase();
+    final data = await database.rawQuery('''
+      SELECT 
+        notas_estudiante.id,
+        notas_estudiante.ESTMAT,
+        notas_estudiante.ESTNOT,
+        notas_estudiante.ESTPRF,
+        materias.MATNT1,
+        materias.MATNT2,
+        materias.MATNT3
+      FROM notas_estudiante
+      INNER JOIN materias ON notas_estudiante.ESTMAT = materias.MATNOM
+      INNER JOIN journal_secciones ON notas_estudiante.ESTCOD = journal_secciones.SECCOD
+      WHERE SECCOD = ?
+      ''', [id]);
+    await database.close();
+    return data;
+  }
+
+  Future<void> addData(String materia, String profesor, int corte1, int corte2,
+      int corte3, String seccion, String semestre) async {
     // Comprueba que las notas no sean negativas
     if (corte1 < 0 || corte2 < 0 || corte3 < 0) {
       throw Exception("Las notas no pueden ser negativas");
@@ -74,6 +119,8 @@ class BasedatoHelper {
     // Inserta datos de la materia
     await database.insert('materias', {
       'MATNOM': materia, // Nombre de la materia
+      'MATSEC': seccion, // Seccion correspondiente al periodo academico
+      'MATSEM': semestre, // Semestre al que pertenece la materia
       'MATNT1': corte1, // Nota del corte 1
       'MATNT2': corte2, // Nota del corte 2
       'MATNT3': corte3 // Nota del corte 3
@@ -85,19 +132,21 @@ class BasedatoHelper {
         {
           'ESTMAT': materia, // Nombre de la materia
           'ESTPRF': profesor, // Nombre del profesor
-          'ESTNOT': corte1 + corte2 + corte3 // Nota total
+          'ESTNOT': corte1 + corte2 + corte3, // Nota total
+          'ESTCOD': seccion
         },
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> updateData(
-    int id,
-    String newMateria,
-    String newProfessor,
-    int newCorte1,
-    int newCorte2,
-    int newCorte3,
-  ) async {
+      int id,
+      String newMateria,
+      String newProfessor,
+      int newCorte1,
+      int newCorte2,
+      int newCorte3,
+      String newSeccion,
+      String newSemestre) async {
     final database = await _openDatabase();
 
     await database.update(
@@ -107,6 +156,8 @@ class BasedatoHelper {
         'MATNT1': newCorte1,
         'MATNT2': newCorte2,
         'MATNT3': newCorte3,
+        'MATSEC': newSeccion,
+        'MATSEM': newSemestre,
       },
       where: 'MATID = ?',
       whereArgs: [id],
@@ -150,6 +201,53 @@ class BasedatoHelper {
     final database = await _openDatabase();
     var query = Sqflite.firstIntValue(await database
         .rawQuery('SELECT sum(ESTNOT)/count(*) from notas_estudiante'));
+    return query?.toDouble();
+  }
+
+  Future<double?> mostrarPromedioSeccionActual() async {
+    final database = await _openDatabase();
+
+    // Obtenemos el código de la sección activa
+    var seccionActivaQuery = await database.rawQuery('''
+    SELECT SECCOD FROM journal_secciones WHERE SECSTS = 'S' LIMIT 1
+  ''');
+
+    // Verificamos si se encontró una sección activa
+    if (seccionActivaQuery.isEmpty) {
+      return null; // No hay sección activa
+    }
+
+    // Obtenemos el código de la sección activa y lo convertimos a String
+    String seccionActiva = seccionActivaQuery[0]['SECCOD'] as String;
+
+    // Ahora usamos ese código en la consulta para calcular el promedio
+    var query = Sqflite.firstIntValue(await database.rawQuery('''
+    SELECT SUM(ESTNOT) / COUNT(*) 
+    FROM notas_estudiante 
+    INNER JOIN journal_secciones ON notas_estudiante.ESTCOD = journal_secciones.SECCOD 
+    WHERE journal_secciones.SECCOD = ?
+  ''', [seccionActiva]));
+
+    return query?.toDouble();
+  }
+
+  Future<double?> mostrarPromedioPorSeccion(seccion) async {
+    final database = await _openDatabase();
+
+    var query = Sqflite.firstIntValue(await database.rawQuery('''
+    SELECT SUM(ESTNOT) / COUNT(*) 
+    FROM notas_estudiante 
+    INNER JOIN journal_secciones ON notas_estudiante.ESTCOD = journal_secciones.SECCOD 
+    WHERE journal_secciones.SECCOD = ?
+  ''', [seccion]));
+
+    return query?.toDouble();
+  }
+
+  Future<double?> contarSecciones() async {
+    final database = await _openDatabase();
+    var query = Sqflite.firstIntValue(
+        await database.rawQuery('SELECT count(*) from journal_secciones'));
     return query?.toDouble();
   }
 
@@ -213,6 +311,56 @@ class BasedatoHelper {
     return data;
   }
 
+  Future<List<Map<String, dynamic>>> mostrarTareasSeccionActual() async {
+    final database = await _openDatabase();
+
+    // Obtenemos el código de la sección activa
+    var seccionActivaQuery = await database.rawQuery('''
+    SELECT SECCOD FROM journal_secciones WHERE SECSTS = 'S' LIMIT 1
+  ''');
+
+    // Obtenemos el código de la sección activa y lo convertimos a String
+    String seccionActiva = seccionActivaQuery[0]['SECCOD'] as String;
+
+    final data = await database.rawQuery('''
+    SELECT 
+      TARTID,
+      TARMNO,  
+      TARDES,    
+      TARFEC,    
+      TARSTS     
+    FROM tareas
+    INNER JOIN materias on tareas.TARMID = materias.MATID
+    INNER JOIN notas_estudiante on materias.MATNOM = notas_estudiante.ESTMAT
+    INNER JOIN Journal_Secciones on notas_estudiante.ESTCOD = Journal_Secciones.SECCOD
+    WHERE SECCOD = ?
+    ORDER BY TARFEC DESC
+    ''', [seccionActiva]);
+    await database.close();
+    return data;
+  }
+
+  Future<List<Map<String, dynamic>>> mostrarTareasPorSeccion(seccion) async {
+    final database = await _openDatabase();
+
+    final data = await database.rawQuery('''
+    SELECT 
+      TARTID,
+      TARMNO,  
+      TARDES,    
+      TARFEC,    
+      TARSTS     
+    FROM tareas
+    INNER JOIN materias on tareas.TARMID = materias.MATID
+    INNER JOIN notas_estudiante on materias.MATNOM = notas_estudiante.ESTMAT
+    INNER JOIN Journal_Secciones on notas_estudiante.ESTCOD = Journal_Secciones.SECCOD
+    WHERE SECCOD = ?
+    ORDER BY TARFEC DESC
+    ''', [seccion]);
+    await database.close();
+    return data;
+  }
+
   // Método para obtener todos los nombres de materias
   Future<List<String>> obtenerNombresMaterias() async {
     final database = await _openDatabase();
@@ -271,5 +419,60 @@ class BasedatoHelper {
       where: 'TARTID = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<void> addSection(codigo, fechaInicio, fechaFin, esActiva) async {
+    final database = await _openDatabase();
+
+    if (esActiva == 'S') {
+      await database.update(
+        'journal_secciones',
+        {'SECSTS': 'N'}, // Cambiar el estado de todas las secciones a 'N'
+        where: 'SECSTS = ?',
+        whereArgs: ['S'],
+      );
+    }
+
+    // Inserta datos de la seccion
+    await database.insert('journal_secciones', {
+      'SECCOD': codigo,
+      'SECFES': fechaInicio,
+      'SECFET': fechaFin,
+      'SECSTS': esActiva
+    });
+  }
+
+  Future<void> deleteSection() async {
+    final database = await _openDatabase();
+
+    await database.delete(
+      'journal_secciones',
+    );
+  }
+
+  Future<void> deleteMaterias() async {
+    final database = await _openDatabase();
+
+    await database.delete(
+      'materias',
+    );
+  }
+
+  Future<List<String>> getSecciones() async {
+    final database = await _openDatabase();
+
+    // Consulta que selecciona solo las secciones
+    // Primero la activa y luego las inactivas
+    final List<Map<String, dynamic>> resultados = await database.query(
+      'journal_secciones',
+      columns: ['SECCOD'],
+      orderBy:
+          "CASE WHEN SECSTS = 'S' THEN 0 ELSE 1 END, SECCID", // Asegura que la sección activa aparezca primero
+    );
+
+    // Convertir los resultados en una lista de strings
+    return List.generate(resultados.length, (index) {
+      return resultados[index]['SECCOD'] as String;
+    });
   }
 }

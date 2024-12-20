@@ -9,14 +9,14 @@ import 'form_add.dart';
 import 'functions_helper.dart';
 import 'subjects.dart';
 
-class GradesScreen extends StatefulWidget {
-  const GradesScreen({super.key});
+class GradesAllScreen extends StatefulWidget {
+  const GradesAllScreen({super.key});
 
   @override
-  State<GradesScreen> createState() => _GradeScreenState();
+  State<GradesAllScreen> createState() => _GradeAllScreenState();
 }
 
-class _GradeScreenState extends State<GradesScreen> {
+class _GradeAllScreenState extends State<GradesAllScreen> {
   final dbHelper = BasedatoHelper();
   final fnHelper = FunctionsHelper();
 
@@ -67,7 +67,7 @@ class _GradeScreenState extends State<GradesScreen> {
             // Si hay secciones creadas, muestra el contenido
             return SingleChildScrollView(
               child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: dbHelper.mostrarSeccionActual(),
+                future: dbHelper.mostrar(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -123,7 +123,7 @@ class _GradeScreenState extends State<GradesScreen> {
 
                         // Fila de promedio
                         FutureBuilder<double?>(
-                          future: dbHelper.mostrarPromedioSeccionActual(),
+                          future: dbHelper.mostrarPromedio(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -191,7 +191,7 @@ class _GradeScreenState extends State<GradesScreen> {
 
                         // Mostramos las tareas
                         FutureBuilder<List<Map<String, dynamic>>>(
-                          future: dbHelper.mostrarTareasSeccionActual(),
+                          future: dbHelper.mostrarTareas(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
