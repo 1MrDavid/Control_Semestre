@@ -9,6 +9,23 @@ Las herramientas utilizadas son:
 
 ---
 
+## Versión actual
+Este proyecto actualmente me ayuda a tener un registro de las materias y tener acceso rápido a información relevante.\
+La tercera versión y la actual es la que más cambios conllevó, pues se agregó muchas pantallas y se hicieron modificaciones a como funciona los registros.\
+
+Pero antes de empezar, la filosfía de los registros.\
+Un semestre o cuatrimestre se definen como periodos "períodos academicos". Pueden haber varíos por años (En mi caso son tres cuatrimestres al año). Y cada uno posee sus propias materias.\
+
+Diferentes períodos pueden tener "la misma materia". Pues, aunque tengan el mismo nombre, a nivel de base de datos estas se diferencian por el ID.
+
+### Base de datos
+Primero, la base de datos consta de más tablas y es más compleja.
+
+![Diagrama entidad relación DB actual](./doc-media/V3-DB-Entidad-Relacion.jpeg)
+
+
+---
+
 ## Primera versión
 Este proyecto inició como un proyecto personal para poder tener un registro de las materias inscritas y las tareas realizadas durante el semestre. La primera versión se enfocó en establecer las principales pantallas y la clase para la manipulación de base de datos.
 
