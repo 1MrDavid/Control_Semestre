@@ -1,6 +1,6 @@
 # control_semestres
 
-Esta aplicación se desarrollo con la intención de llevar el control de las materias que se lleva durante el semestre, siendo capaz de agreagr, modificar y eliminar estos mismos.
+Esta aplicación se desarrollo con la intención de llevar el control de las materias que se lleva durante el semestre, siendo capaz de agregar, modificar y eliminar estos mismos.
 
 Las herramientas utilizadas son:
 - Dart (Lenguaje de programación)
@@ -46,7 +46,7 @@ Las otras dos pantallas constan de los formularios para añadir un nuevo dato (a
 
     2. Pantalla para agregar datos - en caso de poseer inputs vacíos
 
-    
+
     ![Pantalla para agregar datos inputs vacíos](./doc-media/V1-agregar-materia-error.png)
 
 
@@ -61,10 +61,44 @@ La pantalla de modificar datos se accede al presionar alguna de las materias de 
 ### Basedato_helper
 Este archivo tiene la clase que contiene los métodos para todas las operaciones que se realiza con la base de datos. En esta primera versión solo se usa una tabla, así que este archivo solo contiene las operaciones para iniciar la base de datos, insertar datos, eliminar datos, mostrar datos y calcular el promedio.
 Cabe mencionar que, en este proyecto se usa una base de datos interna, así que es el propio dispositvo el que almacena esta y si se elimina la aplicación también se elimina la información en esta.
+
 ![Código Basedatohelper](./doc-media/V1-basedatohelper.png)
 
 Como ya se mencionó, esta versión solo consta de una tabla
+
 ![Tabla notas estudiante](./doc-media/V1-DB.png)
 
 Además, se realizó un diagrama de como se esperaba que creciera la base de datos al avanzar el proyecto.
+
 ![Planteamiento diagrama entidad relación](./doc-media/V1-ER-planteamiento.png)
+
+---
+
+## Segunda versión
+En esta versión se enfocó en agregar la sección de tareas y hacer cambios en las pantallas establecidas para añadir información que resulta relevante.
+
+### Tareas
+Para empezar el cambio más importante: tareas
+Se modificó la base de datos para agregar las tablas de materias y tareas. Además, se agregó la sección de tareas en la pantalla principal, así que al acceder a esta se realiza una consulta para las materia y otra para las tareas.
+
+![Pantalla principal con tarea](./doc-media/V2-pantalla-principal.jpg)
+
+Las tareas son mostrados con un color dependiendo del estatus que poseen;
+- Pendiente: Gris
+- Finalizada: Verde
+- Incompleta : Rojo
+- 
+Estas tareas tienen su propio formulario para agregar nuevos, igual que los anteriores mostrados. Este se accede al presionar el boton "Añadir".
+
+![Pantalla añadir tareas](./doc-media/V2-agregar-tarea.jpg)
+
+Y al presionar una de las tareas te lleva la pantalla de modificar datos con los datos correspondiente al registro seleccionado.
+
+### Cambios en pantallas materias
+Al presionar una de las materias en la pantalla principal te dirige a una pantalla intermedia que muestra más datos de la materia
+
+![Nueva pantalla datos materia](./doc-media/V2-materia-detalle.jpg)
+
+Y ahora las materias cuentan con su propia tabla, donde el mayor cambio es que la nota se divide en 3 inputs (principalmente, porque así funciona mi universidad) y la nota mostrada en la pantalla principal es la suma de estas tres. A su vez, estos también significó cambios para las pantallas para agregar y modificar las materias.
+
+![V2 agregar materia](./doc-media/V2-agregar-materia.jpg)
