@@ -10,7 +10,7 @@ Las herramientas utilizadas son:
 ---
 
 ## Versión actual
-Este proyecto actualmente me ayuda a tener un registro de las materias y tener acceso rápido a información relevante.
+Este proyecto actualmente me ayuda a tener un registro de las materias y tener acceso rápido a información relevante.<br/>
 La tercera versión y la actual es la que más cambios conllevó, pues se agregó muchas pantallas y se hicieron modificaciones a como funciona los registros.
 
 Pero antes de empezar, la filosfía de los registros.
@@ -24,10 +24,10 @@ Se agregarón nuevos campos a la tabla de materias y se agregó una nueva tabla 
 
 ![Diagrama entidad relación DB actual](./doc-media/V3-DB-Entidad-Relacion.jpeg)
 
-Los campos de la table tiene esa nomenclatura donde las tres primeras letras representa la tabla y los otros tres el campo en sí, porque así se maneja en mi trabajo y así plantee los nombres cuando empecé el proyectos (cosas de trabajar con AS400).
+Los campos de la tabla tiene esa nomenclatura donde las tres primeras letras representa la tabla y los otros tres el campo en sí, porque así se maneja en mi trabajo y así plantee los nombres cuando empecé el proyectos (cosas de trabajar con AS400).
 
 ### Pantalla principal
-La pantalla principal muestra todas las materias a través de una consulta de la base de datos, se puede añadir materias presionando el boton en la esquina inferior derecha. Al finalizar las materias se encuentra el promedio y despues las tareas.
+La pantalla principal muestra todas las materias a través de una consulta de la base de datos, se puede añadir materias presionando el boton en la esquina inferior derecha. Al final de las materias se encuentra el promedio y despues las tareas.
 
 ![v3 pantalla principal](./doc-media/V3-pantalla-principal.jpg)
 
@@ -51,10 +51,9 @@ Las tareas poseen diferentes colores dependiendo del estatus que se le asigna:
 - Pendiente: gris
 - Finalizada: Verde
 - Incompleta: Rojo
+Y al presionar uno de estos te permite modificarlo.
 
 ![V3 pantalla principal con tareas](./doc-media/V3-tareas.jpg)
-
-Y al presionar una de estos te permite modificarlo.
 
 ---
 
