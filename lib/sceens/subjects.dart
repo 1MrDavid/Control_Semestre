@@ -130,6 +130,33 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
 
                   const SizedBox(height: 16), // Espacio entre las tarjetas
 
+                  // Bloque para Seccion
+                  const Text(
+                    'Seccion:',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(
+                    width: screenWidth, // Ocupar todo el ancho de la pantalla
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          data['MATSEC'],
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16), // Espacio entre las tarjetas
+
                   // Bloque para Profesor
                   const Text(
                     'Profesor:',
@@ -223,10 +250,12 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                           'MATNT2'], // Datos actuales desde la base de datos
                       corte3: data[
                           'MATNT3'], // Datos actuales desde la base de datos
-                      seccion: data[
-                          'MATSEC'], // Datos actuales desde la base de datos
+                      periodo: data[
+                          'MATPER'], // Datos actuales desde la base de datos
                       semestre: data[
                           'MATSEM'], // Datos actuales desde la base de datos
+                      seccion: data[
+                          'MATSEC'], // Datos actuales desde la base de datos
                     ),
                   ),
                 );

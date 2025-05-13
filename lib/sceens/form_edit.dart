@@ -10,8 +10,9 @@ class FormEdit extends StatefulWidget {
   final int corte1;
   final int corte2;
   final int corte3;
-  final String seccion;
+  final String periodo;
   final String semestre;
+  final String seccion;
 
   const FormEdit({
     Key? key,
@@ -21,8 +22,9 @@ class FormEdit extends StatefulWidget {
     required this.corte1,
     required this.corte2,
     required this.corte3,
-    required this.seccion,
+    required this.periodo,
     required this.semestre,
+    required this.seccion,
   }) : super(key: key);
 
   @override
@@ -40,9 +42,10 @@ class FormEditState extends State<FormEdit> {
   late TextEditingController _corte2Controller;
   late TextEditingController _corte3Controller;
   late TextEditingController _semestreController;
+  late TextEditingController _seccionController;
 
-  String? _seccionSeleccionada;
-  List<String> _secciones = [];
+  String? _periodoSeleccionado;
+  List<String> _periodos = [];
 
   @override
   void initState() {
@@ -53,15 +56,16 @@ class FormEditState extends State<FormEdit> {
     _corte2Controller = TextEditingController(text: widget.corte2.toString());
     _corte3Controller = TextEditingController(text: widget.corte3.toString());
     _semestreController = TextEditingController(text: widget.semestre);
-    _seccionSeleccionada = widget.seccion;
-    _cargarDatosSecciones();
+    _seccionController = TextEditingController(text: widget.seccion);
+    _periodoSeleccionado = widget.periodo;
+    _cargarDatosPeriodos();
   }
 
-  Future<void> _cargarDatosSecciones() async {
-    final secciones = await dbHelper.getSecciones();
+  Future<void> _cargarDatosPeriodos() async {
+    final periodos = await dbHelper.getPeriodos();
 
     setState(() {
-      _secciones = secciones;
+      _periodos = periodos;
     });
   }
 
@@ -73,6 +77,7 @@ class FormEditState extends State<FormEdit> {
     _corte2Controller.dispose();
     _corte3Controller.dispose();
     _semestreController.dispose();
+    _seccionController.dispose();
     super.dispose();
   }
 
@@ -90,18 +95,18 @@ class FormEditState extends State<FormEdit> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Sección
+                // Periodo
                 DropdownButtonFormField<String>(
-                  value: _seccionSeleccionada,
-                  items: _secciones.map((seccion) {
+                  value: _periodoSeleccionado,
+                  items: _periodos.map((periodo) {
                     return DropdownMenuItem<String>(
-                      value: seccion,
-                      child: Text(seccion),
+                      value: periodo,
+                      child: Text(periodo),
                     );
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      _seccionSeleccionada = value;
+                      _periodoSeleccionado = value;
                     });
                   },
                   decoration: const InputDecoration(
@@ -143,6 +148,22 @@ class FormEditState extends State<FormEdit> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Introduce el nombre de la materia';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Seccion
+                TextFormField(
+                  controller: _seccionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Sección',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Introduce la sección de la materia';
                     }
                     return null;
                   },
@@ -296,15 +317,15 @@ class FormEditState extends State<FormEdit> {
 
   Future<void> _guardarCambios() async {
     await dbHelper.updateData(
-      widget.id,
-      _materiaController.text,
-      _profesorController.text,
-      int.parse(_corte1Controller.text),
-      int.parse(_corte2Controller.text),
-      int.parse(_corte3Controller.text),
-      _seccionSeleccionada!,
-      _semestreController.text, // Aquí se usa el texto ingresado
-    );
+        widget.id,
+        _materiaController.text,
+        _profesorController.text,
+        int.parse(_corte1Controller.text),
+        int.parse(_corte2Controller.text),
+        int.parse(_corte3Controller.text),
+        _periodoSeleccionado!,
+        _semestreController.text,
+        _seccionController.text);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Datos actualizados')),

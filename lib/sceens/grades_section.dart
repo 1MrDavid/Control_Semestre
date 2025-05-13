@@ -9,16 +9,16 @@ import 'form_add.dart';
 import 'functions_helper.dart';
 import 'subjects.dart';
 
-class GradesSectionScreen extends StatefulWidget {
-  final String seccion;
+class GradesPeriodScreen extends StatefulWidget {
+  final String periodo;
 
-  const GradesSectionScreen({super.key, required this.seccion});
+  const GradesPeriodScreen({super.key, required this.periodo});
 
   @override
-  State<GradesSectionScreen> createState() => _GradesSectionScreenState();
+  State<GradesPeriodScreen> createState() => _GradesPeriodScreenState();
 }
 
-class _GradesSectionScreenState extends State<GradesSectionScreen> {
+class _GradesPeriodScreenState extends State<GradesPeriodScreen> {
   final dbHelper = BasedatoHelper();
   final fnHelper = FunctionsHelper();
 
@@ -26,12 +26,12 @@ class _GradesSectionScreenState extends State<GradesSectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notas - ${widget.seccion}'),
+        title: Text('Notas - ${widget.periodo}'),
       ),
       drawer: CustomDrawer(),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: dbHelper.mostrarPorSeccion(
-            widget.seccion), // Método para filtrar por sección
+        future: dbHelper.mostrarPorPeriodo(
+            widget.periodo), // Método para filtrar por periodo
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -39,7 +39,7 @@ class _GradesSectionScreenState extends State<GradesSectionScreen> {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
-              child: Text('No hay datos disponibles para esta sección'),
+              child: Text('No hay datos disponibles para este periodo'),
             );
           } else {
             final List<Map<String, dynamic>> data = snapshot.data!;
@@ -87,8 +87,8 @@ class _GradesSectionScreenState extends State<GradesSectionScreen> {
 
                   // Fila de promedio
                   FutureBuilder<double?>(
-                    future: dbHelper.mostrarPromedioPorSeccion(
-                        widget.seccion), // Método para promedio por sección
+                    future: dbHelper.mostrarPromedioPorPeriodo(
+                        widget.periodo), // Método para promedio por sección
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return fnHelper.buildRow('Promedio', 'Cargando...');
@@ -122,7 +122,8 @@ class _GradesSectionScreenState extends State<GradesSectionScreen> {
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const AddTaskScreen()),
+                                  builder: (context) => AddTaskScreen(
+                                      periodoAcademico: widget.periodo)),
                             );
                             if (result == true) {
                               setState(() {});
@@ -149,8 +150,8 @@ class _GradesSectionScreenState extends State<GradesSectionScreen> {
 
                   // Mostrar tareas de la sección
                   FutureBuilder<List<Map<String, dynamic>>>(
-                    future: dbHelper.mostrarTareasPorSeccion(
-                        widget.seccion), // Método para tareas por sección
+                    future: dbHelper.mostrarTareasPorPeriodo(
+                        widget.periodo), // Método para tareas por sección
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -275,12 +276,12 @@ class _GradesSectionScreenState extends State<GradesSectionScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final double? seccionesCount = await dbHelper.contarSecciones();
+          final double? periodosCount = await dbHelper.contarPeriodos();
 
-          if (seccionesCount == 0) {
+          if (periodosCount == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AddSeccionForm()),
+              MaterialPageRoute(builder: (context) => AddPeriodForm()),
             ).then((_) {
               // Actualiza la pantalla al volver
               setState(() {});

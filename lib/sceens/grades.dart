@@ -28,21 +28,21 @@ class _GradeScreenState extends State<GradesScreen> {
       ),
       drawer: CustomDrawer(),
       body: FutureBuilder<double?>(
-        // Verifica si hay secciones creadas
-        future: dbHelper.contarSecciones(),
+        // Verifica si hay periodos creados
+        future: dbHelper.contarPeriodos(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData && snapshot.data == 0) {
-            // Si no hay secciones, muestra el mensaje
+            // Si no hay periodos, muestra el mensaje
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'No hay secciones creadas.',
+                    'No hay periodos creados.',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
@@ -51,23 +51,23 @@ class _GradeScreenState extends State<GradesScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AddSeccionForm(),
+                          builder: (context) => AddPeriodForm(),
                         ),
                       ).then((_) {
                         // Refresca la pantalla al volver
                         setState(() {});
                       });
                     },
-                    child: const Text('Crear Sección'),
+                    child: const Text('Crear Periodo'),
                   ),
                 ],
               ),
             );
           } else {
-            // Si hay secciones creadas, muestra el contenido
+            // Si hay periodos creadas, muestra el contenido
             return SingleChildScrollView(
               child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: dbHelper.mostrarSeccionActual(),
+                future: dbHelper.mostrarPeriodoActual(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -79,6 +79,7 @@ class _GradeScreenState extends State<GradesScreen> {
                             'No hay datos disponibles\nPresiona el boton para añadir materias'));
                   } else {
                     final List<Map<String, dynamic>> data = snapshot.data!;
+                    final String periodoActual = data.first['MATPER'] as String;
                     return Column(
                       children: [
                         // Encabezado de la tabla
@@ -123,7 +124,7 @@ class _GradeScreenState extends State<GradesScreen> {
 
                         // Fila de promedio
                         FutureBuilder<double?>(
-                          future: dbHelper.mostrarPromedioSeccionActual(),
+                          future: dbHelper.mostrarPromedioPeriodoActual(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -163,8 +164,8 @@ class _GradeScreenState extends State<GradesScreen> {
                                   final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            const AddTaskScreen()),
+                                        builder: (context) => AddTaskScreen(
+                                            periodoAcademico: periodoActual)),
                                   );
                                   if (result == true) {
                                     setState(() {});
@@ -191,7 +192,7 @@ class _GradeScreenState extends State<GradesScreen> {
 
                         // Mostramos las tareas
                         FutureBuilder<List<Map<String, dynamic>>>(
-                          future: dbHelper.mostrarTareasSeccionActual(),
+                          future: dbHelper.mostrarTareasPeriodoActual(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -327,12 +328,12 @@ class _GradeScreenState extends State<GradesScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final double? seccionesCount = await dbHelper.contarSecciones();
+          final double? periodosCount = await dbHelper.contarPeriodos();
 
-          if (seccionesCount == 0) {
+          if (periodosCount == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AddSeccionForm()),
+              MaterialPageRoute(builder: (context) => AddPeriodForm()),
             ).then((_) {
               // Actualiza la pantalla al volver
               setState(() {});

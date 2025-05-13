@@ -14,15 +14,16 @@ class Widget107State extends State<Widget107> {
 
   // Controladores para los campos de texto
   final TextEditingController _semestreController = TextEditingController();
+  final TextEditingController _seccionController = TextEditingController();
   final TextEditingController _materiaController = TextEditingController();
   final TextEditingController _profesorController = TextEditingController();
   final TextEditingController _corte1Controller = TextEditingController();
   final TextEditingController _corte2Controller = TextEditingController();
   final TextEditingController _corte3Controller = TextEditingController();
 
-  // Variables para el DropdownButton de las secciones
-  List<String> _secciones = [];
-  String? _seccionSeleccionada;
+  // Variables para el DropdownButton de las periodos
+  List<String> _periodos = [];
+  String? _periodoSeleccionado;
 
   // Instancias de helpers
   final dbHelper = BasedatoHelper();
@@ -31,16 +32,16 @@ class Widget107State extends State<Widget107> {
   @override
   void initState() {
     super.initState();
-    _cargarSecciones(); // Cargar las secciones al iniciar
+    _cargarPeriodos(); // Cargar las periodos al iniciar
   }
 
-  Future<void> _cargarSecciones() async {
-    final secciones = await dbHelper.getSecciones();
+  Future<void> _cargarPeriodos() async {
+    final periodos = await dbHelper.getPeriodos();
     setState(() {
-      _secciones = secciones;
-      if (_secciones.isNotEmpty) {
-        _seccionSeleccionada =
-            _secciones.first; // Seleccionar la primera por defecto
+      _periodos = periodos;
+      if (_periodos.isNotEmpty) {
+        _periodoSeleccionado =
+            _periodos.first; // Seleccionar la primera por defecto
       }
     });
   }
@@ -49,6 +50,7 @@ class Widget107State extends State<Widget107> {
   void dispose() {
     // Limpiar controladores al cerrar la pantalla
     _semestreController.dispose();
+    _seccionController.dispose();
     _materiaController.dispose();
     _profesorController.dispose();
     _corte1Controller.dispose();
@@ -70,7 +72,7 @@ class Widget107State extends State<Widget107> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-// Bloque 1: Sección y Semestre
+// Bloque 1: Periodo y Semestre
               Row(
                 children: [
                   // Dropdown para la sección
@@ -86,16 +88,16 @@ class Widget107State extends State<Widget107> {
                           ),
                         ),
                         DropdownButtonFormField<String>(
-                          value: _seccionSeleccionada,
-                          items: _secciones.map((seccion) {
+                          value: _periodoSeleccionado,
+                          items: _periodos.map((periodo) {
                             return DropdownMenuItem<String>(
-                              value: seccion,
-                              child: Text(seccion),
+                              value: periodo,
+                              child: Text(periodo),
                             );
                           }).toList(),
                           onChanged: (value) {
                             setState(() {
-                              _seccionSeleccionada = value;
+                              _periodoSeleccionado = value;
                             });
                           },
                           decoration: const InputDecoration(
@@ -106,7 +108,7 @@ class Widget107State extends State<Widget107> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Por favor, selecciona una sección';
+                              return 'Por favor, selecciona un periodo';
                             }
                             return null;
                           },
@@ -171,7 +173,30 @@ class Widget107State extends State<Widget107> {
               ),
               const SizedBox(height: 16),
 
-              // Bloque 3: Profesor
+              // Bloque 3: Seccion
+              const Text(
+                'Seccion',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextFormField(
+                controller: _seccionController,
+                decoration: const InputDecoration(
+                  hintText: 'Introduce la sección',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, introduce la sección';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Bloque 4: Profesor
               const Text(
                 'Profesor',
                 style: TextStyle(
@@ -194,7 +219,7 @@ class Widget107State extends State<Widget107> {
               ),
               const SizedBox(height: 24),
 
-              // Bloque 4: Cortes (Notas)
+              // Bloque 5: Cortes (Notas)
               functionsHelper.buildThreeElementRow(
                 'Corte 1',
                 'Corte 2',
@@ -265,15 +290,16 @@ class Widget107State extends State<Widget107> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         // Obtener los valores ingresados en los controladores
-                        final String seccion = _seccionSeleccionada ?? '';
+                        final String periodo = _periodoSeleccionado ?? '';
                         final String semestre = _semestreController.text;
+                        final String seccion = _seccionController.text;
                         final String materia = _materiaController.text;
                         final String profesor = _profesorController.text;
                         final int corte1 = int.parse(_corte1Controller.text);
                         final int corte2 = int.parse(_corte2Controller.text);
                         final int corte3 = int.parse(_corte3Controller.text);
 
-                        if (seccion.isEmpty) {
+                        if (periodo.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content:
@@ -286,13 +312,13 @@ class Widget107State extends State<Widget107> {
                         // Llamar al método addData con todos los parámetros
                         dbHelper
                             .addData(materia, profesor, corte1, corte2, corte3,
-                                seccion, semestre)
+                                periodo, semestre, seccion)
                             .then((_) {
                           // Mostrar un SnackBar con los datos ingresados
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                  'Datos guardados: $materia, $profesor, $corte1, $corte2, $corte3, $seccion, $semestre'),
+                                  'Datos guardados: $materia, $profesor, $corte1, $corte2, $corte3, $periodo, $semestre'),
                             ),
                           );
 

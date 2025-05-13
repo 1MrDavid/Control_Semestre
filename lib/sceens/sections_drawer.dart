@@ -18,7 +18,7 @@ class CustomDrawer extends StatelessWidget {
     return Drawer(
       child: FutureBuilder<List<String>>(
         // Usamos FutureBuilder para esperar el resultado de la consulta
-        future: dbHelper.getSecciones(),
+        future: dbHelper.getPeriodos(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -53,7 +53,7 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.add),
-                  title: const Text('Añadir Sección'),
+                  title: const Text('Añadir Periodo'),
                   onTap: () {},
                 ),
                 ListTile(
@@ -67,7 +67,7 @@ class CustomDrawer extends StatelessWidget {
             );
           }
 
-          List<String> secciones = snapshot.data!;
+          List<String> periodos = snapshot.data!;
 
           return ListView(
             padding: EdgeInsets.zero,
@@ -92,11 +92,11 @@ class CustomDrawer extends StatelessWidget {
                 ),
               ),
 
-              // Mostrar las secciones creadas
-              ...secciones.map((seccion) {
+              // Mostrar los periodos creadas
+              ...periodos.map((periodo) {
                 return ListTile(
                   leading: const Icon(Icons.school),
-                  title: Text(seccion),
+                  title: Text(periodo),
                   onTap: () {
                     // Lógica al presionar una sección
                     Navigator.pop(context); // Cierra el Drawer
@@ -104,7 +104,7 @@ class CustomDrawer extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            GradesSectionScreen(seccion: seccion),
+                            GradesPeriodScreen(periodo: periodo),
                       ),
                     );
                   },
@@ -114,19 +114,18 @@ class CustomDrawer extends StatelessWidget {
               // Botón para añadir nueva sección
               ListTile(
                 leading: const Icon(Icons.add),
-                title: const Text('Añadir Sección'),
+                title: const Text('Añadir Periodo'),
                 onTap: () {
                   // Lógica al presionar "Añadir Sección"
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddSeccionForm(),
+                      builder: (context) => AddPeriodForm(),
                     ),
                   ).then((_) {
                     // Cierra la barra lateral al volver
                     Navigator.pop(context);
                   });
-                  // Aquí puedes abrir un formulario o una pantalla para añadir una nueva sección
                 },
               ),
 

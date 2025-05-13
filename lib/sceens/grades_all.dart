@@ -28,21 +28,21 @@ class _GradeAllScreenState extends State<GradesAllScreen> {
       ),
       drawer: CustomDrawer(),
       body: FutureBuilder<double?>(
-        // Verifica si hay secciones creadas
-        future: dbHelper.contarSecciones(),
+        // Verifica si hay periodos creadas
+        future: dbHelper.contarPeriodos(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData && snapshot.data == 0) {
-            // Si no hay secciones, muestra el mensaje
+            // Si no hay periodos, muestra el mensaje
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'No hay secciones creadas.',
+                    'No hay periodos creados.',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
@@ -51,7 +51,7 @@ class _GradeAllScreenState extends State<GradesAllScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AddSeccionForm(),
+                          builder: (context) => AddPeriodForm(),
                         ),
                       ).then((_) {
                         // Refresca la pantalla al volver
@@ -64,7 +64,7 @@ class _GradeAllScreenState extends State<GradesAllScreen> {
               ),
             );
           } else {
-            // Si hay secciones creadas, muestra el contenido
+            // Si hay periodos creados, muestra el contenido
             return SingleChildScrollView(
               child: FutureBuilder<List<Map<String, dynamic>>>(
                 future: dbHelper.mostrar(),
@@ -164,7 +164,8 @@ class _GradeAllScreenState extends State<GradesAllScreen> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const AddTaskScreen()),
+                                            const AddTaskScreen(
+                                                periodoAcademico: '000')),
                                   );
                                   if (result == true) {
                                     setState(() {});
@@ -327,12 +328,12 @@ class _GradeAllScreenState extends State<GradesAllScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final double? seccionesCount = await dbHelper.contarSecciones();
+          final double? periodosCount = await dbHelper.contarPeriodos();
 
-          if (seccionesCount == 0) {
+          if (periodosCount == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AddSeccionForm()),
+              MaterialPageRoute(builder: (context) => AddPeriodForm()),
             ).then((_) {
               // Actualiza la pantalla al volver
               setState(() {});

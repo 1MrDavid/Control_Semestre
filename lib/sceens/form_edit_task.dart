@@ -70,8 +70,9 @@ class TaskEditScreenState extends State<TaskEditScreen> {
 
   int _obtenerFechaEntera() {
     final anio = int.tryParse(_anioController.text) ?? 0;
-    final mes = int.tryParse(_mesController.text) ?? 0;
-    final dia = int.tryParse(_diaController.text) ?? 0;
+    final mes = int.tryParse(_mesController.text.padLeft(2, '0')) ?? 0;
+    final dia = int.tryParse(_diaController.text.padLeft(2, '0')) ?? 0;
+
     return (anio * 10000) + (mes * 100) + dia;
   }
 

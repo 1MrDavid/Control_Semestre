@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'basedato_helper.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({Key? key}) : super(key: key);
+  final String periodoAcademico;
+
+  const AddTaskScreen({
+    Key? key,
+    required this.periodoAcademico,
+  }) : super(key: key);
 
   @override
   AddTaskScreenState createState() => AddTaskScreenState();
@@ -32,8 +37,16 @@ class AddTaskScreenState extends State<AddTaskScreen> {
 
   // Función para cargar todos los nombres de materias al inicio
   void _cargarNombresMaterias() async {
-    final nombres = await dbHelper
-        .obtenerNombresMaterias(); // Método que obtiene todos los nombres de materias
+    final nombres;
+
+    // Obtiene los nombres de materias
+    if (widget.periodoAcademico != '000') {
+      nombres = await dbHelper
+          .obtenerNombresMateriasPorPeriodo(widget.periodoAcademico);
+    } else {
+      nombres = await dbHelper.obtenerNombresMaterias();
+    }
+
     setState(() {
       nombresMaterias = nombres;
     });
@@ -41,12 +54,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
 
   // Función para concatenar día, mes y año en un único entero
   int _obtenerFechaEntera() {
-    final dia = int.tryParse(_diaController.text) ?? 0;
-    final mes = int.tryParse(_mesController.text) ?? 0;
+    final dia = int.tryParse(_diaController.text.padLeft(2, '0')) ?? 0;
+    final mes = int.tryParse(_mesController.text.padLeft(2, '0')) ?? 0;
     final anio = int.tryParse(_anioController.text) ?? 0;
-    return (dia * 1000000) +
-        (mes * 10000) +
-        anio; // Concatenamos en formato DDMMAAAA
+
+    return (anio * 10000) + (mes * 100) + dia;
   }
 
   @override
@@ -130,7 +142,9 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length >= 3) {
                           return 'Introduce el día';
                         } else if (int.tryParse(value) == null) {
                           return 'Número válido';
@@ -149,7 +163,9 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length >= 3) {
                           return 'Introduce el mes';
                         } else if (int.tryParse(value) == null) {
                           return 'Número válido';
@@ -168,7 +184,10 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length < 4 ||
+                            value.length >= 5) {
                           return 'Introduce el año';
                         } else if (int.tryParse(value) == null) {
                           return 'Número válido';

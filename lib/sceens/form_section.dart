@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'basedato_helper.dart';
 
-class AddSeccionForm extends StatefulWidget {
+class AddPeriodForm extends StatefulWidget {
   @override
-  AddSeccionFormState createState() => AddSeccionFormState();
+  AddPeriodFormState createState() => AddPeriodFormState();
 }
 
-class AddSeccionFormState extends State<AddSeccionForm> {
+class AddPeriodFormState extends State<AddPeriodForm> {
   final _formKey = GlobalKey<FormState>();
 
   // Controladores para los campos
@@ -49,7 +49,7 @@ class AddSeccionFormState extends State<AddSeccionForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agregar Sección'),
+        title: const Text('Agregar periodo'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -58,9 +58,9 @@ class AddSeccionFormState extends State<AddSeccionForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Código de la sección
+              // Código del periodo
               const Text(
-                'Código de la Sección',
+                'Código del periodo',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               TextFormField(
@@ -71,7 +71,7 @@ class AddSeccionFormState extends State<AddSeccionForm> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor, introduce el código de la sección.';
+                    return 'Por favor, introduce el código del periodo.';
                   }
                   return null;
                 },
@@ -94,7 +94,9 @@ class AddSeccionFormState extends State<AddSeccionForm> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length >= 3) {
                           return 'Introduce el día';
                         }
                         return null;
@@ -111,7 +113,9 @@ class AddSeccionFormState extends State<AddSeccionForm> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length >= 3) {
                           return 'Introduce el mes';
                         }
                         return null;
@@ -128,7 +132,10 @@ class AddSeccionFormState extends State<AddSeccionForm> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length < 4 ||
+                            value.length >= 5) {
                           return 'Introduce el año';
                         }
                         return null;
@@ -155,7 +162,9 @@ class AddSeccionFormState extends State<AddSeccionForm> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length >= 3) {
                           return 'Introduce el día';
                         }
                         return null;
@@ -172,7 +181,9 @@ class AddSeccionFormState extends State<AddSeccionForm> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length >= 3) {
                           return 'Introduce el mes';
                         }
                         return null;
@@ -189,7 +200,10 @@ class AddSeccionFormState extends State<AddSeccionForm> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length < 4 ||
+                            value.length >= 5) {
                           return 'Introduce el año';
                         }
                         return null;
@@ -200,12 +214,12 @@ class AddSeccionFormState extends State<AddSeccionForm> {
               ),
               const SizedBox(height: 16),
 
-              // Checkbox para sección activa
+              // Checkbox para periodo activo
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    '¿Es la sección activa?',
+                    '¿Es el periodo activo?',
                     style: TextStyle(fontSize: 16),
                   ),
                   Checkbox(
@@ -251,7 +265,7 @@ class AddSeccionFormState extends State<AddSeccionForm> {
                         // Mostrar mensaje y regresar
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Sección agregada con éxito')),
+                              content: Text('periodo agregado con éxito')),
                         );
                         Navigator.pop(context);
                       }
