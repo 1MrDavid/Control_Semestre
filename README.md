@@ -78,7 +78,7 @@ Además, se realizó un diagrama de como se esperaba que creciera la base de dat
 En esta versión se enfocó en agregar la sección de tareas y hacer cambios en las pantallas establecidas para añadir información que resulta relevante.
 
 ### Tareas
-Para empezar el cambio más importante: tareas
+Para empezar el cambio más importante: tareas\
 Se modificó la base de datos para agregar las tablas de materias y tareas. Además, se agregó la sección de tareas en la pantalla principal, así que al acceder a esta se realiza una consulta para las materia y otra para las tareas.
 
 ![Pantalla principal con tarea](./doc-media/V2-pantalla-principal.jpg)
@@ -87,7 +87,7 @@ Las tareas son mostrados con un color dependiendo del estatus que poseen;
 - Pendiente: Gris
 - Finalizada: Verde
 - Incompleta : Rojo
-- 
+
 Estas tareas tienen su propio formulario para agregar nuevos, igual que los anteriores mostrados. Este se accede al presionar el boton "Añadir".
 
 ![Pantalla añadir tareas](./doc-media/V2-agregar-tarea.jpg)
