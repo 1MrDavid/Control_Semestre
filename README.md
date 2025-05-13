@@ -10,19 +10,51 @@ Las herramientas utilizadas son:
 ---
 
 ## Versión actual
-Este proyecto actualmente me ayuda a tener un registro de las materias y tener acceso rápido a información relevante.\
-La tercera versión y la actual es la que más cambios conllevó, pues se agregó muchas pantallas y se hicieron modificaciones a como funciona los registros.\
+Este proyecto actualmente me ayuda a tener un registro de las materias y tener acceso rápido a información relevante.
+La tercera versión y la actual es la que más cambios conllevó, pues se agregó muchas pantallas y se hicieron modificaciones a como funciona los registros.
 
-Pero antes de empezar, la filosfía de los registros.\
-Un semestre o cuatrimestre se definen como periodos "períodos academicos". Pueden haber varíos por años (En mi caso son tres cuatrimestres al año). Y cada uno posee sus propias materias.\
+Pero antes de empezar, la filosfía de los registros.
+Un semestre o cuatrimestre se definen como "períodos academicos". Pueden haber varíos por años (En mi caso son tres cuatrimestres al año). Y cada uno posee sus propias materias.
 
 Diferentes períodos pueden tener "la misma materia". Pues, aunque tengan el mismo nombre, a nivel de base de datos estas se diferencian por el ID.
 
 ### Base de datos
-Primero, la base de datos consta de más tablas y es más compleja.
+Primero, la base de datos.
+Se agregarón nuevos campos a la tabla de materias y se agregó una nueva tabla el cual se encarga de guardar los períodos. Solo puede existir un periodo activo a la vez.
 
 ![Diagrama entidad relación DB actual](./doc-media/V3-DB-Entidad-Relacion.jpeg)
 
+Los campos de la table tiene esa nomenclatura donde las tres primeras letras representa la tabla y los otros tres el campo en sí, porque así se maneja en mi trabajo y así plantee los nombres cuando empecé el proyectos (cosas de trabajar con AS400).
+
+### Pantalla principal
+La pantalla principal muestra todas las materias a través de una consulta de la base de datos, se puede añadir materias presionando el boton en la esquina inferior derecha. Al finalizar las materias se encuentra el promedio y despues las tareas.
+
+![v3 pantalla principal](./doc-media/V3-pantalla-principal.jpg)
+
+Hay 3 archivos que son básicamente la misma pantalla, pero con diferentes consultas a la base de datos. El primero, el que accede por defecto, muestra el período marcado como "período actual". El segundo muestra el período seleccionado en el menú lateral. Y el tercero muestra todas las materias.
+Es de esta manera, basicamente porque fue la solución que se me ocurrió. Estoy buscando una manera de optimizarlo para no tener que depender en 3 archivos que consta del mismo código.
+
+### Menu lateral
+La aplicación posee un menú lateral donde se puede acceder a los períodos creados, crear un nuevo período, acceder a una pantalla con todas las materias sin importar el período y cambiar entre el tema claro y oscuro.
+
+![V3 Menu lateral](./doc-media/V3-sidebar.jpg)
+
+Actualmente solo se puede crear períodos, pero no hay una pantalla donde se pueda modificar o eliminar.
+
+### Materia detallada
+Al presionar una de las materias en la pantalla principal te dirige a una pantalla con toda la información de la materia. Al presionar el boton en la esquina inferior derecha te permite modificar los datos.
+
+![V3 materia detallada](./doc-media/V3-detalle-materia.jpg)
+
+### Tareas
+Las tareas poseen diferentes colores dependiendo del estatus que se le asigna:
+- Pendiente: gris
+- Finalizada: Verde
+- Incompleta: Rojo
+
+![V3 pantalla principal con tareas](./doc-media/V3-tareas.jpg)
+
+Y al presionar una de estos te permite modificarlo.
 
 ---
 

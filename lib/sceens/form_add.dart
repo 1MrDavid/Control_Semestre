@@ -81,7 +81,7 @@ class Widget107State extends State<Widget107> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Sección',
+                          'Periodo',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
